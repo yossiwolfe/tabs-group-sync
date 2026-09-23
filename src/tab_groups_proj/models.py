@@ -2,9 +2,9 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional, List
 from sqlalchemy import String, Integer, Boolean, DateTime, Uuid, ForeignKey, text #, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import MappedAsDataclass, DeclarativeBase, Mapped, mapped_column, relationship
 
-class Base(DeclarativeBase):
+class Base(MappedAsDataclass, DeclarativeBase):
     pass # empty placeholder
 
 class TabGroup(Base):
