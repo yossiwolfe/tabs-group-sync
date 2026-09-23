@@ -1,4 +1,26 @@
 .venv/
+venv/
+env/
+ENV/
 *.private
 *.db
+__pycache__/
 *.pyc
+.env
+.env.*
+!.env.example
+
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+
+# Mac system files
+.DS_Store
+
+.pytest_cache/
+.htmlcov/
+htmlcov/
+.coverage
+.coverage.*
