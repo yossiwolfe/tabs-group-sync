@@ -1,3 +1,3 @@
 # Tab Groups Project
 
-Python backend experimentation
+Syncing tab groups across multiple devices in real time
