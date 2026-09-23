@@ -12,7 +12,7 @@ class TabGroup(Base):
 
     # TODO: switch default=uuid.uuid4 to server_default=func.gen_random_uuid() if using Postgres - keep for SQLite locally for now
     id: Mapped[uuid.UUID] = mapped_column(Uuid, default=uuid.uuid4, primary_key=True, init=False)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     color: Mapped[str] = mapped_column(String(50), nullable=False)
     device_id: Mapped[str] = mapped_column(String(100), nullable=False)
