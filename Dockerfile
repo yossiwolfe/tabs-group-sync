@@ -32,4 +32,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
 
 # Cloud Run injects a variable called PORT. We bind Uvicorn to 0.0.0.0 and pass $PORT dynamically.
-CMD ["uvicorn", "tabs_proj.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["python", "-m", "uvicorn", "tabs_proj.main:app", "--host", "0.0.0.0", "--port", "8080"]
