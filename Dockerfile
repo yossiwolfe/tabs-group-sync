@@ -11,8 +11,8 @@ ENV UV_COMPILE_BYTECODE=1
 COPY pyproject.toml uv.lock ./
 
 # Synchronize the project dependencies safely (creates the local .venv)
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project
+# Use a plain run command instead
+RUN uv sync --frozen --no-dev --no-install-project
 
 # --- Stage 2: Final lightweight runtime container ---
 FROM python:3.11-alpine
