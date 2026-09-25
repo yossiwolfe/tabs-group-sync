@@ -48,7 +48,7 @@ def get_groups(
     Retrieve tab groups. If 'since' is provided, only show tab groups updated since that time.
     """
 
-    statement = select(TabGroup)
+    statement = select(TabGroup).where(TabGroup.deleted == False)
 
     if since is not None:
         statement = statement.where(TabGroup.updated_at > since)
@@ -95,3 +95,36 @@ def update_group(
     db.commit()
     db.refresh(group)
     return group
+
+@app.delete(
+    "/groups/{id}",
+    summary="Delete Tab Group",
+    tags=["Group"],
+    response_model=schemas.TabGroupRead
+)
+def delete_group(
+    id: uuid.UUID,
+    db: Session = Depends(get_db)
+):
+    group = db.get(TabGroup, id)
+
+    if not group:
+        raise HTTPException(status_code=404, detail="Tab group not found")
+
+    if group.deleted:
+        raise HTTPException(status_code=412, detail="Tab group already deleted")
+
+    group.deleted = True
+
+    db.commit()
+    db.refresh(group)
+
+    return group
+
+@app.get(
+    "/health",
+    summary="Health Check",
+    tags=["System"]
+)
+def health_check():
+    return {"message": "ok"}
