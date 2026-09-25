@@ -1,35 +1,31 @@
-# --- Stage 1: Build & Sync dependencies ---
-FROM ghcr.io/astral-sh/uv:python3.11-alpine AS builder
+# --- Stage 1: Build dependencies ---
+FROM ghcr.io/astral-sh/uv:python3.11-slim AS builder
 
-# Set the working directory
 WORKDIR /app
 
-# Enable bytecode compilation for faster application start times
+# Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
 
-# Copy only the files needed to install dependencies (leveraging Docker cache)
+# Copy project specifications
 COPY pyproject.toml uv.lock ./
 
-# Synchronize the project dependencies safely (creates the local .venv)
-# Use a plain run command instead
+# Synchronize dependencies without the buildkit mount syntax
 RUN uv sync --frozen --no-dev --no-install-project
 
-# --- Stage 2: Final lightweight runtime container ---
-FROM python:3.11-alpine
+# --- Stage 2: Production runtime ---
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy the pre-built virtual environment from the builder stage
+# Copy the pre-built virtual environment from builder stage
 COPY --from=builder /app/.venv /app/.venv
 
-# Copy your actual source code into the container
+# Copy source application files
 COPY src/ /app/src/
 
-# Place the virtual environment's executables directly onto the system PATH
+# Place virtual environment binaries directly onto the system path
 ENV PATH="/app/.venv/bin:$PATH"
-
-# Disable Python output buffering to ensure logs appear instantly in Google Cloud Logging
 ENV PYTHONUNBUFFERED=1
 
-# Cloud Run injects a variable called PORT. We bind Uvicorn to 0.0.0.0 and pass $PORT dynamically.
+# Bind Uvicorn through python's direct module runner tool to port 8080
 CMD ["python", "-m", "uvicorn", "tabs_proj.main:app", "--host", "0.0.0.0", "--port", "8080"]
