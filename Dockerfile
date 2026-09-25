@@ -21,7 +21,7 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 
 # Copy source application files
-COPY src/ /app/src/
+COPY src/tab_groups_proj/ /app/src/
 
 # Place virtual environment binaries directly onto the system path
 ENV PATH="/app/.venv/bin:$PATH"
