@@ -21,11 +21,11 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 
 # Copy source application files
-COPY src/tab_groups_proj/ /app/src/
+# Line 24: Copy the entire src directory so the subfolders stay intact
+COPY src/ /app/src/
 
 # Place virtual environment binaries directly onto the system path
-ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH="/app/src"
 
 # Bind Uvicorn through python's direct module runner tool to port 8080
-CMD ["python", "-m", "uvicorn", "tabs_proj.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["python", "-m", "uvicorn", "tab_groups_proj.main:app", "--host", "0.0.0.0", "--port", "8080"]
