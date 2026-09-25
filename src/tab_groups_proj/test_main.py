@@ -75,6 +75,34 @@ def test_create_tab_group(client):
     assert "id" in data
     assert data["deleted"] == False
 
+def test_create_tab_group_fails_when_color_prop_past_max_length(client):
+    """ Test that a tab group fails to be created when color max length is not respected """
+
+    payload = {
+        "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "name": "Tab Group 1",
+        "color": "ffffffffffeeeeeeeeeerrrrrrrrrruuuuuuuuuuoooooooooollllllllll",
+        "device_id": "iphone12-1",
+    }
+
+    response = client.post("/groups", json=payload)
+
+    assert response.status_code == 422
+
+def test_create_tab_group_fails_when_device_id_prop_past_max_length(client):
+    """ Test that a tab group fails to be created when device_id max length is not respected """
+
+    payload = {
+        "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "name": "Tab Group 1",
+        "color": "3d3d3d",
+        "device_id": "ffffffffffeeeeeeeeeerrrrrrrrrruuuuuuuuuuoooooooooollllllllllffffffffffeeeeeeeeeerrrrrrrrrruuuuuuuuuuoooooooooollllllllllffffffffffeeeeeeeeeerrrrrrrrrruuuuuuuuuuoooooooooollllllllllffffffffffeeeeeeeeeerrrrrrrrrruuuuuuuuuuoooooooooollllllllllffffffffffeeeeeeeeeerrrrrrrrrruuuuuuuuuuoooooooooollllllllllffffffffffeeeeeeeeeerrrrrrrrrruuuuuuuuuuoooooooooollllllllllffffffffffeeeeeeeeeerrrrrrrrrruuuuuuuuuuoooooooooollllllllll",
+    }
+
+    response = client.post("/groups", json=payload)
+
+    assert response.status_code == 422
+
 def test_create_one_hundred_tab_groups(client):
     """ Test that 1000 tab groups can be created """
 
@@ -125,3 +153,56 @@ def test_update_tab_group(client):
     assert data["device_id"] == createPayload["device_id"]
     assert "id" in data
     assert data["deleted"] == False
+
+def test_delete_tab_group(client):
+    """ Test that a tab group can be soft deleted """
+
+    createPayload = {
+            "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "name": "Tab Group 1",
+            "color": "3D3D3D",
+            "device_id": "iphone12-1",
+        }
+    
+    createResponse = client.post("/groups", json=createPayload)
+    id = createResponse.json()["id"]
+
+    response = client.delete(f"/groups/{id}")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["user_id"] == createPayload["user_id"]
+    assert data["name"] == createPayload["name"]
+    assert data["color"] == createPayload["color"]
+    assert data["device_id"] == createPayload["device_id"]
+    assert "id" in data
+    assert data["deleted"] == True
+
+def test_deleted_tab_groups_only_show_with_since(client):
+    """ Test that a tab groups get returns deleted tab groups only when since is used """
+
+    createPayload = {
+            "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "name": "Tab Group 1",
+            "color": "3D3D3D",
+            "device_id": "iphone12-1",
+        }
+    
+    createResponse = client.post("/groups", json=createPayload)
+    createResponseData = createResponse.json()
+    id = createResponseData["id"]
+
+    client.delete(f"/groups/{id}")
+
+    getResponseWithoutSince = client.get("/groups")
+    dataWithoutSince = getResponseWithoutSince.json()
+
+    assert len(dataWithoutSince) == 0
+
+    getResponseWithSince = client.get("/groups", params={"since": createResponseData["updated_at"]})
+    dataWithSince = getResponseWithSince.json()
+
+    assert len(dataWithSince) == 1
+
