@@ -52,7 +52,7 @@ def get_groups(
 
     if since is not None:
         clean_since = since.strftime("%Y-%m-%d %H:%M:%S") # there are weird millisecond artifacts that make this necessary
-        statement = statement.where(TabGroup.updated_at >= clean_since)
+        statement = select(TabGroup).where(TabGroup.updated_at >= clean_since) # include deletions when since is used
 
     return db.scalars(statement).all()
 
